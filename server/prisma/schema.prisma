@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  githubId    String    @id
+  username    String
+  email       String
+  displayName String
+  verified    Boolean   @default(false)
+  description String?   @db.Text
+  pic         String?   @db.Text
+  banner      String?   @default("https://i.lcpdfrusercontent.com/uploads/monthly_2017_02/default_banner-vflYp0HrA.jpg.4c1fd2901acd8dd1d76ed02f43f6c6d8.jpg") @db.Text
+  location    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  videos      Video[]   @relation("UserVideos")
+  votes       Vote[]
+  replies     Comment[] @relation("UserReplies")
+  comments    Comment[] @relation("UserComments")
+  subscribers User[]    @relation("UserSubscribes", references: [githubId])
+  subscribed  User[]    @relation("UserSubscribes", references: [githubId])
+  history     Video[]   @relation("UserHistory")
+  seeLater    Video[]   @relation("UserSeeLater")
+
+  @@unique([username, createdAt])
+}
+
+model Video {
+  id          String    @id @default(uuid())
+  file        String    @db.Text()
+  title       String
+  duration    Int
+  views       Int       @default(0)
+  thumbnail   String
+  description String?
+  createdAt   DateTime  @unique @default(now())
+  author      User      @relation("UserVideos", fields: [authorId], references: [githubId])
+  authorId    String
+  isPrivate   Boolean   @default(false)
+  votes       Vote[]
+  comments    Comment[]
+  history     User[]    @relation("UserHistory")
+  seeLater    User[]    @relation("UserSeeLater")
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  value     Int
+  videoId   String?
+  video     Video?   @relation(fields: [videoId], references: [id])
+  userId    String
+  user      User?    @relation(fields: [userId], references: [githubId])
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  createdAt DateTime @unique @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id              String    @id @default(uuid())
+  content         String    @db.Text
+  author          User      @relation("UserComments", fields: [authorId], references: [githubId])
+  authorId        String
+  video           Video     @relation(fields: [videoId], references: [id])
+  videoId         String
+  votes           Vote[]
+  replies         Comment[] @relation("CommentToComment")
+  parentComment   Comment?  @relation("CommentToComment", fields: [parentCommentId], references: [id])
+  parentCommentId String?
+  repliedUser     User?     @relation("UserReplies", fields: [repliedUserId], references: [githubId])
+  repliedUserId   String?
+  createdAt       DateTime  @unique @default(now())
+  updateAt        DateTime  @updatedAt
+}

@@ -1,0 +1,11 @@
+mutation CreateVideo($values: CreateVideoInput!) {
+  createVideo(values: $values) {
+    id
+    file
+    title
+    createdAt
+    isPrivate
+    description
+    views
+  }
+}

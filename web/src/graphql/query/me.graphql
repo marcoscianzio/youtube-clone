@@ -1,0 +1,15 @@
+query Me {
+  me {
+    githubId
+    username
+    email
+    displayName
+    verified
+    pic
+    location
+    createdAt
+    updatedAt
+    banner
+    description
+  }
+}

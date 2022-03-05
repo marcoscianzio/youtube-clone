@@ -1,0 +1,20 @@
+query Videos($take: Int, $cursor: String) {
+  videos(take: $take, cursor: $cursor) {
+    videos {
+      id
+      file
+      title
+      createdAt
+      author {
+        username
+        displayName
+        verified
+        pic
+      }
+      views
+      thumbnail
+      duration
+    }
+    hasMore
+  }
+}
