@@ -40,12 +40,14 @@ export class UserQuery {
     return user;
   }
 
-  @Query(() => [User])
-  async mySubscriptions(@Ctx() { prisma, req }: Context): Promise<User[]> {
-    return await prisma.user
+  @Query(() => [User], { nullable: true })
+  async mySubscriptions(
+    @Ctx() { prisma, req }: Context
+  ): Promise<User[] | null> {
+    const subscriptions = await prisma.user
       .findUnique({
         where: {
-          githubId: req.session.userId,
+          githubId: req.session.userId || "",
         },
       })
       .subscribed({
@@ -56,5 +58,7 @@ export class UserQuery {
           githubId: true,
         },
       });
+
+    return subscriptions || null;
   }
 }

@@ -56,16 +56,6 @@ export type CreateVideoInput = {
   title: Scalars['String'];
 };
 
-export type History = {
-  __typename?: 'History';
-  id: Scalars['String'];
-  user: User;
-  userId: Scalars['String'];
-  video: Video;
-  videoId: Scalars['String'];
-  viewedAt: Scalars['DateTime'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   createComment: Comment;
@@ -103,11 +93,9 @@ export type MutationVoteArgs = {
 export type Query = {
   __typename?: 'Query';
   commentReplies: CommentPagination;
-  hello: Scalars['String'];
   me?: Maybe<User>;
-  mySubscriptions: Array<User>;
+  mySubscriptions?: Maybe<Array<User>>;
   myVotes: Array<Video>;
-  seeLater: VideoPagination;
   subsVideos?: Maybe<VideoPagination>;
   user: User;
   users: Array<User>;
@@ -120,21 +108,12 @@ export type Query = {
 export type QueryCommentRepliesArgs = {
   cursor?: InputMaybe<Scalars['String']>;
   parentCommentId: Scalars['String'];
-  skip?: InputMaybe<Scalars['Int']>;
-  take?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type QuerySeeLaterArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
 
 export type QuerySubsVideosArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
@@ -152,24 +131,13 @@ export type QueryVideoArgs = {
 export type QueryVideoCommentsArgs = {
   cursor?: InputMaybe<Scalars['String']>;
   id: Scalars['String'];
-  skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
 
 export type QueryVideosArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
-};
-
-export type SeeLater = {
-  __typename?: 'SeeLater';
-  addedAt: Scalars['DateTime'];
-  user: User;
-  userId: Scalars['String'];
-  video: Video;
-  videoId: Scalars['String'];
 };
 
 export type User = {
@@ -181,11 +149,11 @@ export type User = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   githubId: Scalars['String'];
-  history?: Maybe<Array<History>>;
+  history?: Maybe<Array<Video>>;
   location: Scalars['String'];
   pic?: Maybe<Scalars['String']>;
   replies?: Maybe<Array<Comment>>;
-  seeLater?: Maybe<Array<SeeLater>>;
+  seeLater?: Maybe<Array<Video>>;
   subscribed?: Maybe<Array<User>>;
   subscribers?: Maybe<Array<User>>;
   updatedAt: Scalars['DateTime'];
@@ -199,15 +167,17 @@ export type Video = {
   __typename?: 'Video';
   author?: Maybe<User>;
   authorId: Scalars['String'];
+  commentCount: Scalars['Float'];
   comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['DateTime'];
   description?: Maybe<Scalars['String']>;
   duration: Scalars['Float'];
   file: Scalars['String'];
-  history?: Maybe<Array<History>>;
+  history?: Maybe<Array<User>>;
   id: Scalars['String'];
   isPrivate: Scalars['Boolean'];
-  seeLater?: Maybe<Array<SeeLater>>;
+  likeCount: Scalars['Float'];
+  seeLater?: Maybe<Array<User>>;
   thumbnail: Scalars['String'];
   title: Scalars['String'];
   views: Scalars['Float'];
@@ -250,6 +220,18 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', githubId: string, username: string, email: string, displayName: string, verified: boolean, pic?: string | null, location: string, createdAt: any, updatedAt: any, banner?: string | null, description?: string | null } | null };
+
+export type MySubscriptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MySubscriptionsQuery = { __typename?: 'Query', mySubscriptions?: Array<{ __typename?: 'User', githubId: string, username: string, displayName: string, verified: boolean, pic?: string | null }> | null };
+
+export type VideoQueryVariables = Exact<{
+  videoId: Scalars['String'];
+}>;
+
+
+export type VideoQuery = { __typename?: 'Query', video: { __typename?: 'Video', id: string, file: string, title: string, thumbnail: string, duration: number, views: number, description?: string | null, createdAt: any, commentCount: number, likeCount: number, author?: { __typename?: 'User', displayName: string, githubId: string, pic?: string | null, verified: boolean, username: string } | null } };
 
 export type VideosQueryVariables = Exact<{
   take?: InputMaybe<Scalars['Int']>;
@@ -343,6 +325,95 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const MySubscriptionsDocument = gql`
+    query MySubscriptions {
+  mySubscriptions {
+    githubId
+    username
+    displayName
+    verified
+    pic
+  }
+}
+    `;
+
+/**
+ * __useMySubscriptionsQuery__
+ *
+ * To run a query within a React component, call `useMySubscriptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMySubscriptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMySubscriptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMySubscriptionsQuery(baseOptions?: Apollo.QueryHookOptions<MySubscriptionsQuery, MySubscriptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MySubscriptionsQuery, MySubscriptionsQueryVariables>(MySubscriptionsDocument, options);
+      }
+export function useMySubscriptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MySubscriptionsQuery, MySubscriptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MySubscriptionsQuery, MySubscriptionsQueryVariables>(MySubscriptionsDocument, options);
+        }
+export type MySubscriptionsQueryHookResult = ReturnType<typeof useMySubscriptionsQuery>;
+export type MySubscriptionsLazyQueryHookResult = ReturnType<typeof useMySubscriptionsLazyQuery>;
+export type MySubscriptionsQueryResult = Apollo.QueryResult<MySubscriptionsQuery, MySubscriptionsQueryVariables>;
+export const VideoDocument = gql`
+    query Video($videoId: String!) {
+  video(id: $videoId) {
+    id
+    file
+    title
+    thumbnail
+    duration
+    views
+    description
+    createdAt
+    author {
+      displayName
+      githubId
+      pic
+      verified
+      username
+    }
+    commentCount
+    likeCount
+  }
+}
+    `;
+
+/**
+ * __useVideoQuery__
+ *
+ * To run a query within a React component, call `useVideoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVideoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVideoQuery({
+ *   variables: {
+ *      videoId: // value for 'videoId'
+ *   },
+ * });
+ */
+export function useVideoQuery(baseOptions: Apollo.QueryHookOptions<VideoQuery, VideoQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VideoQuery, VideoQueryVariables>(VideoDocument, options);
+      }
+export function useVideoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VideoQuery, VideoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VideoQuery, VideoQueryVariables>(VideoDocument, options);
+        }
+export type VideoQueryHookResult = ReturnType<typeof useVideoQuery>;
+export type VideoLazyQueryHookResult = ReturnType<typeof useVideoLazyQuery>;
+export type VideoQueryResult = Apollo.QueryResult<VideoQuery, VideoQueryVariables>;
 export const VideosDocument = gql`
     query Videos($take: Int, $cursor: String) {
   videos(take: $take, cursor: $cursor) {

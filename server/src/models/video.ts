@@ -38,6 +38,9 @@ export class Video {
   @Field()
   isPrivate: boolean;
 
+  @Field()
+  likeCount?: number;
+
   @Field(() => [Vote], { nullable: true })
   votes?: Vote[] | null;
 
@@ -46,6 +49,9 @@ export class Video {
 
   @Field(() => [User], { nullable: true })
   history?: User[] | null;
+
+  @Field()
+  commentCount?: number;
 
   @Field(() => [User], { nullable: true })
   seeLater?: User[] | null;

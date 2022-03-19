@@ -1,0 +1,21 @@
+query Video($videoId: String!) {
+  video(id: $videoId) {
+    id
+    file
+    title
+    thumbnail
+    duration
+    views
+    description
+    createdAt
+    author {
+      displayName
+      githubId
+      pic
+      verified
+      username
+    }
+    commentCount
+    likeCount
+  }
+}

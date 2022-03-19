@@ -4,9 +4,11 @@ import {
   Args,
   Ctx,
   Field,
+  FieldResolver,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from "type-graphql";
 import { Context } from "../../context";
 import { PaginationArgs } from "../../args/pagination";
@@ -20,8 +22,33 @@ class VideoPagination {
   hasMore: boolean;
 }
 
-@Resolver()
+@Resolver(Video)
 export class VideoQuery {
+  @FieldResolver()
+  async likeCount(
+    @Root() video: Video,
+    @Ctx() { prisma }: Context
+  ): Promise<number> {
+    return await prisma.vote.count({
+      where: {
+        videoId: video.id,
+        value: 1,
+      },
+    });
+  }
+
+  @FieldResolver()
+  async commentCount(
+    @Root() video: Video,
+    @Ctx() { prisma }: Context
+  ): Promise<number> {
+    return await prisma.comment.count({
+      where: {
+        videoId: video.id,
+      },
+    });
+  }
+
   @Query(() => Video)
   async video(
     @Arg("id") id: string,
@@ -37,7 +64,15 @@ export class VideoQuery {
         id,
       },
       include: {
-        author: true,
+        author: {
+          select: {
+            githubId: true,
+            displayName: true,
+            username: true,
+            pic: true,
+            verified: true,
+          },
+        },
       },
     });
 
@@ -45,18 +80,22 @@ export class VideoQuery {
       throw new Error("no video was found");
     }
 
-    await prisma.user.update({
-      where: {
-        githubId: req.session.userId,
-      },
-      data: {
-        history: {
-          create: {
-            videoId: video.id,
+    if (req.session.userId) {
+      await prisma.history.create({
+        data: {
+          video: {
+            connect: {
+              id: video.id,
+            },
+          },
+          user: {
+            connect: {
+              githubId: req.session.userId,
+            },
           },
         },
-      },
-    });
+      });
+    }
 
     return video;
   }
@@ -162,36 +201,34 @@ export class VideoQuery {
     return { videos: videos.slice(0, take), hasMore };
   }
 
-  @Query(() => VideoPagination)
-  async seeLater(
-    @Args() { cursor, take }: PaginationArgs,
-    @Ctx() { prisma, req }: Context
-  ): Promise<VideoPagination> {
-    const realTake = take! + 1;
+  // @Query(() => VideoPagination)
+  // async seeLater(
+  //   @Args() { cursor, take }: PaginationArgs,
+  //   @Ctx() { prisma, req }: Context
+  // ): Promise<VideoPagination> {
+  //   const realTake = take! + 1;
 
-    let videos: any[] = await prisma.user
-      .findUnique({
-        where: {
-          githubId: req.session.userId,
-        },
-      })
-      .seeLater({
-        select: {
-          video: true,
-        },
-        orderBy: {
-          addedAt: "asc",
-        },
-        take: realTake,
-        cursor: {
-          addedAt: cursor,
-        },
-      });
+  //   let videos: any[] = await prisma.user
+  //     .findUnique({
+  //       where: {
+  //         githubId: req.session.userId,
+  //       },
+  //     })
+  //     .seeLater({
+  //       select: {},
+  //       orderBy: {
+  //         addedAt: "asc",
+  //       },
+  //       take: realTake,
+  //       cursor: {
+  //         addedAt: cursor,
+  //       },
+  //     });
 
-    videos = Array.from(videos, (x) => x.video);
+  //   videos = Array.from(videos, (x) => x.video);
 
-    const hasMore = videos.length === realTake;
+  //   const hasMore = videos.length === realTake;
 
-    return { videos: videos.slice(0, take), hasMore };
-  }
+  //   return { videos: videos.slice(0, take), hasMore };
+  // }
 }

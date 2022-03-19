@@ -41,7 +41,7 @@ const CreateVideoModal: React.FC = ({}) => {
       <IconButton
         bg="transparent"
         aria-label="create-video"
-        icon={<CreateVideoIcon boxSize={6} />}
+        icon={<CreateVideoIcon boxSize={7} />}
         onClick={onOpen}
       >
         Open Modal

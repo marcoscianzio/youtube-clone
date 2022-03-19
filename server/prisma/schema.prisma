@@ -15,7 +15,7 @@ model User {
   verified    Boolean   @default(false)
   description String?   @db.Text
   pic         String?   @db.Text
-  banner      String?   @default("https://i.lcpdfrusercontent.com/uploads/monthly_2017_02/default_banner-vflYp0HrA.jpg.4c1fd2901acd8dd1d76ed02f43f6c6d8.jpg") @db.Text
+  banner      String?   @db.Text
   location    String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -25,7 +25,7 @@ model User {
   comments    Comment[] @relation("UserComments")
   subscribers User[]    @relation("UserSubscribes", references: [githubId])
   subscribed  User[]    @relation("UserSubscribes", references: [githubId])
-  history     Video[]   @relation("UserHistory")
+  history     History[]
   seeLater    Video[]   @relation("UserSeeLater")
 
   @@unique([username, createdAt])
@@ -45,8 +45,16 @@ model Video {
   isPrivate   Boolean   @default(false)
   votes       Vote[]
   comments    Comment[]
-  history     User[]    @relation("UserHistory")
+  history     History[]
   seeLater    User[]    @relation("UserSeeLater")
+}
+
+model History {
+  video   Video    @relation(fields: [videoId], references: [id])
+  videoId String
+  user    User     @relation(fields: [userId], references: [githubId])
+  userId  String
+  addedAt DateTime @unique @default(now())
 }
 
 model Vote {

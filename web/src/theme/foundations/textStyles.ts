@@ -13,6 +13,5 @@ export const textStyles = {
   },
   sectionItem: {
     color: "textPrimary",
-    textTransform: "capitalize",
   },
 };

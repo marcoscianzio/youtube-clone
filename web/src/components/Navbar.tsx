@@ -10,6 +10,7 @@ import {
   Stack,
   useDisclosure,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { useMeQuery } from "../generated/graphql";
 import { Logo } from "../icons/Logo";
 import CreateVideoModal from "./CreateVideoModal";
@@ -63,7 +64,9 @@ const Navbar: React.FC = ({ children }) => {
               icon={<HamburgerIcon boxSize={6} color="primary" />}
             />
           </HStack>
-          <Logo boxSize={24} />
+          <Link href="/">
+            <Logo cursor="pointer" boxSize={24} />
+          </Link>
         </HStack>
         <HStack w="30%" spacing={0}>
           <Input placeholder="Buscar" variant="search" />
@@ -84,7 +87,7 @@ const Navbar: React.FC = ({ children }) => {
 
       <Stack spacing={0} direction="row">
         <Sidebar isOpen={isOpen} />
-        <Box pt={20} pl={isOpen ? "60" : "20"}>
+        <Box w="full" pt={20} pl={isOpen ? "60" : "20"}>
           {children}
         </Box>
       </Stack>

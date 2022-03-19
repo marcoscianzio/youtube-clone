@@ -1,0 +1,9 @@
+query MySubscriptions {
+  mySubscriptions {
+    githubId
+    username
+    displayName
+    verified
+    pic
+  }
+}
