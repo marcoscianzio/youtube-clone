@@ -38,7 +38,12 @@ const Navbar: React.FC = ({ children }) => {
     component = (
       <HStack spacing={4}>
         <CreateVideoModal />
-        <Avatar size="sm" bg="searchBorder" />
+        <Avatar
+          size="sm"
+          bg="searchBorder"
+          src={data.me.pic!}
+          name={data.me.displayName}
+        />
       </HStack>
     );
   }

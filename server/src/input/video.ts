@@ -5,6 +5,7 @@ import {
   IsString,
   IsUrl,
   Length,
+  MaxLength,
 } from "class-validator";
 import { Field, InputType } from "type-graphql";
 
@@ -35,7 +36,7 @@ export class CreateVideoInput {
 
   @IsOptional()
   @IsString()
-  @Length(1, 500)
+  @MaxLength(500)
   @Field(() => String, { nullable: true })
-  description?: string;
+  description?: string | null;
 }

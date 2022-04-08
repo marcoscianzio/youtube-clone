@@ -46,8 +46,10 @@ const Home: NextPage = () => {
                   fetchMore({
                     variables: {
                       take: 10,
-                      cursor:
-                        data.videos.videos[data.videos.videos.length - 1].id,
+                      cursor: {
+                        id: data.videos.videos[data.videos.videos.length - 1]
+                          .id,
+                      },
                     },
                     updateQuery: (pv, { fetchMoreResult }) => {
                       if (!fetchMoreResult) {

@@ -56,11 +56,14 @@ export type CreateVideoInput = {
   title: Scalars['String'];
 };
 
+export type CursorArg = {
+  id: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createComment: Comment;
   createVideo: Video;
-  seeLater: Scalars['Boolean'];
   toggleSubscribe: Scalars['Boolean'];
   vote: Scalars['Boolean'];
 };
@@ -73,11 +76,6 @@ export type MutationCreateCommentArgs = {
 
 export type MutationCreateVideoArgs = {
   values: CreateVideoInput;
-};
-
-
-export type MutationSeeLaterArgs = {
-  id: Scalars['String'];
 };
 
 
@@ -106,14 +104,14 @@ export type Query = {
 
 
 export type QueryCommentRepliesArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
+  cursor?: InputMaybe<CursorArg>;
   parentCommentId: Scalars['String'];
   take?: InputMaybe<Scalars['Int']>;
 };
 
 
 export type QuerySubsVideosArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
+  cursor?: InputMaybe<CursorArg>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
@@ -129,14 +127,14 @@ export type QueryVideoArgs = {
 
 
 export type QueryVideoCommentsArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
+  cursor?: InputMaybe<CursorArg>;
   id: Scalars['String'];
   take?: InputMaybe<Scalars['Int']>;
 };
 
 
 export type QueryVideosArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
+  cursor?: InputMaybe<CursorArg>;
   take?: InputMaybe<Scalars['Int']>;
 };
 
@@ -231,11 +229,20 @@ export type VideoQueryVariables = Exact<{
 }>;
 
 
-export type VideoQuery = { __typename?: 'Query', video: { __typename?: 'Video', id: string, file: string, title: string, thumbnail: string, duration: number, views: number, description?: string | null, createdAt: any, commentCount: number, likeCount: number, author?: { __typename?: 'User', displayName: string, githubId: string, pic?: string | null, verified: boolean, username: string } | null } };
+export type VideoQuery = { __typename?: 'Query', video: { __typename?: 'Video', id: string, file: string, title: string, thumbnail: string, duration: number, views: number, description?: string | null, createdAt: any, commentCount: number, likeCount: number, author?: { __typename?: 'User', displayName: string, githubId: string, pic?: string | null, verified: boolean, username: string } | null }, me?: { __typename?: 'User', pic?: string | null } | null };
+
+export type VideoCommentsQueryVariables = Exact<{
+  videoId: Scalars['String'];
+  take?: InputMaybe<Scalars['Int']>;
+  cursor?: InputMaybe<CursorArg>;
+}>;
+
+
+export type VideoCommentsQuery = { __typename?: 'Query', videoComments: { __typename?: 'CommentPagination', hasMore: boolean, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, author?: { __typename?: 'User', githubId: string, username: string, displayName: string, verified: boolean, pic?: string | null } | null, repliedUser?: { __typename?: 'User', username: string } | null }> } };
 
 export type VideosQueryVariables = Exact<{
   take?: InputMaybe<Scalars['Int']>;
-  cursor?: InputMaybe<Scalars['String']>;
+  cursor?: InputMaybe<CursorArg>;
 }>;
 
 
@@ -384,6 +391,9 @@ export const VideoDocument = gql`
     commentCount
     likeCount
   }
+  me {
+    pic
+  }
 }
     `;
 
@@ -414,8 +424,60 @@ export function useVideoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Vide
 export type VideoQueryHookResult = ReturnType<typeof useVideoQuery>;
 export type VideoLazyQueryHookResult = ReturnType<typeof useVideoLazyQuery>;
 export type VideoQueryResult = Apollo.QueryResult<VideoQuery, VideoQueryVariables>;
+export const VideoCommentsDocument = gql`
+    query VideoComments($videoId: String!, $take: Int, $cursor: CursorArg) {
+  videoComments(id: $videoId, take: $take, cursor: $cursor) {
+    comments {
+      id
+      content
+      author {
+        githubId
+        username
+        displayName
+        verified
+        pic
+      }
+      createdAt
+      repliedUser {
+        username
+      }
+    }
+    hasMore
+  }
+}
+    `;
+
+/**
+ * __useVideoCommentsQuery__
+ *
+ * To run a query within a React component, call `useVideoCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVideoCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVideoCommentsQuery({
+ *   variables: {
+ *      videoId: // value for 'videoId'
+ *      take: // value for 'take'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useVideoCommentsQuery(baseOptions: Apollo.QueryHookOptions<VideoCommentsQuery, VideoCommentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VideoCommentsQuery, VideoCommentsQueryVariables>(VideoCommentsDocument, options);
+      }
+export function useVideoCommentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VideoCommentsQuery, VideoCommentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VideoCommentsQuery, VideoCommentsQueryVariables>(VideoCommentsDocument, options);
+        }
+export type VideoCommentsQueryHookResult = ReturnType<typeof useVideoCommentsQuery>;
+export type VideoCommentsLazyQueryHookResult = ReturnType<typeof useVideoCommentsLazyQuery>;
+export type VideoCommentsQueryResult = Apollo.QueryResult<VideoCommentsQuery, VideoCommentsQueryVariables>;
 export const VideosDocument = gql`
-    query Videos($take: Int, $cursor: String) {
+    query Videos($take: Int, $cursor: CursorArg) {
   videos(take: $take, cursor: $cursor) {
     videos {
       id

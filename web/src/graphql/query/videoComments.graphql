@@ -1,0 +1,20 @@
+query VideoComments($videoId: String!, $take: Int, $cursor: CursorArg) {
+  videoComments(id: $videoId, take: $take, cursor: $cursor) {
+    comments {
+      id
+      content
+      author {
+        githubId
+        username
+        displayName
+        verified
+        pic
+      }
+      createdAt
+      repliedUser {
+        username
+      }
+    }
+    hasMore
+  }
+}

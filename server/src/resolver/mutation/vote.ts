@@ -23,27 +23,35 @@ export class VoteMutation {
     });
 
     if (alreadyExistingVote) {
+      
       if (alreadyExistingVote.value === values.value) {
         await prisma.vote.delete({
           where: {
             id: alreadyExistingVote.id,
           },
         });
-      } else {
-        await prisma.vote.update({
-          where: {
-            id: alreadyExistingVote.id,
-          },
-          data: {
-            value: values.value,
-          },
-        });
+
+        return true;
       }
-    } else {
-      await prisma.vote.create({
-        data: values,
+
+      await prisma.vote.update({
+        where: {
+          id: alreadyExistingVote.id,
+        },
+        data: {
+          value: values.value,
+        },
       });
+
+      return true;
     }
+
+    await prisma.vote.create({
+      data: {
+        ...values,
+        userId: req.session.userId!,
+      },
+    });
 
     return true;
   }

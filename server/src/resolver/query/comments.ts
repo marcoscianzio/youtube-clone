@@ -44,15 +44,20 @@ export class CommentQuery {
           createdAt: "asc",
         },
         take: realTake,
-        cursor: {
-          createdAt: cursor,
-        },
+        cursor,
         include: {
           author: {
             select: {
+              displayName: true,
               username: true,
               githubId: true,
+              verified: true,
               pic: true,
+            },
+          },
+          repliedUser: {
+            select: {
+              username: true,
             },
           },
         },
@@ -79,9 +84,7 @@ export class CommentQuery {
         createdAt: "asc",
       },
       take: realTake,
-      cursor: {
-        createdAt: cursor,
-      },
+      cursor,
       include: {
         author: {
           select: {

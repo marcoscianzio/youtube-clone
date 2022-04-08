@@ -1,4 +1,4 @@
-query Videos($take: Int, $cursor: String) {
+query Videos($take: Int, $cursor: CursorArg) {
   videos(take: $take, cursor: $cursor) {
     videos {
       id

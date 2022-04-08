@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   githubId    String    @id
-  username    String
+  username    String    @unique
   email       String
   displayName String
   verified    Boolean   @default(false)
@@ -28,7 +28,7 @@ model User {
   history     History[]
   seeLater    Video[]   @relation("UserSeeLater")
 
-  @@unique([username, createdAt])
+
 }
 
 model Video {
@@ -39,7 +39,7 @@ model Video {
   views       Int       @default(0)
   thumbnail   String
   description String?
-  createdAt   DateTime  @unique @default(now())
+  createdAt   DateTime  @default(now())
   author      User      @relation("UserVideos", fields: [authorId], references: [githubId])
   authorId    String
   isPrivate   Boolean   @default(false)
@@ -50,11 +50,12 @@ model Video {
 }
 
 model History {
+  id      String   @id @default(uuid())
   video   Video    @relation(fields: [videoId], references: [id])
   videoId String
   user    User     @relation(fields: [userId], references: [githubId])
   userId  String
-  addedAt DateTime @unique @default(now())
+  addedAt DateTime @default(now())
 }
 
 model Vote {
@@ -66,7 +67,7 @@ model Vote {
   user      User?    @relation(fields: [userId], references: [githubId])
   commentId String?
   comment   Comment? @relation(fields: [commentId], references: [id])
-  createdAt DateTime @unique @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
@@ -83,6 +84,6 @@ model Comment {
   parentCommentId String?
   repliedUser     User?     @relation("UserReplies", fields: [repliedUserId], references: [githubId])
   repliedUserId   String?
-  createdAt       DateTime  @unique @default(now())
+  createdAt       DateTime  @default(now())
   updateAt        DateTime  @updatedAt
 }

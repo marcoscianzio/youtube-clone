@@ -105,50 +105,30 @@ export class VideoQuery {
     @Args() { take, cursor }: PaginationArgs,
     @Ctx() { prisma }: Context
   ): Promise<VideoPagination> {
+    console.log(cursor, take);
+
     const realTake = take! + 1;
 
     let videos = null;
 
-    if (cursor) {
-      videos = await prisma.video.findMany({
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: realTake,
-        cursor: {
-          id: cursor,
-        },
-        include: {
-          author: {
-            select: {
-              githubId: true,
-              displayName: true,
-              username: true,
-              verified: true,
-              pic: true,
-            },
+    videos = await prisma.video.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: realTake,
+      cursor,
+      include: {
+        author: {
+          select: {
+            githubId: true,
+            displayName: true,
+            username: true,
+            verified: true,
+            pic: true,
           },
         },
-      });
-    } else {
-      videos = await prisma.video.findMany({
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: realTake,
-        include: {
-          author: {
-            select: {
-              githubId: true,
-              displayName: true,
-              username: true,
-              verified: true,
-              pic: true,
-            },
-          },
-        },
-      });
-    }
+      },
+    });
 
     const hasMore = videos.length === realTake;
 
@@ -191,9 +171,7 @@ export class VideoQuery {
         createdAt: "asc",
       },
       take: realTake,
-      cursor: {
-        createdAt: cursor,
-      },
+      cursor,
     });
 
     const hasMore = videos.length === realTake;

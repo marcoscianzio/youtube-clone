@@ -1,11 +1,11 @@
 import {
-  AspectRatio,
+  Avatar,
   Box,
   Button,
   Collapse,
   HStack,
   Icon,
-  Image,
+  Input,
   SimpleGrid,
   Spinner,
   Stack,
@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/router";
 import { useState } from "react";
 import ReactPlayer from "react-player";
+import CommentSection from "../../components/CommentSection";
 import DateAndViews from "../../components/DateAndViews";
 import Navbar from "../../components/Navbar";
 import { useVideoQuery } from "../../generated/graphql";
@@ -28,6 +29,7 @@ import { withApollo } from "../../utils/withApollo";
 function VideoPage() {
   const router = useRouter();
   const [show, setShow] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const handleToggle = () => setShow(!show);
 
@@ -102,12 +104,15 @@ function VideoPage() {
                   </HStack>
                 </HStack>
               </HStack>
-              <Stack spacing={6} divider={<StackDivider />}>
+              <Stack
+                spacing={6}
+                divider={<StackDivider borderColor="percentLayer" />}
+              >
                 <Stack spacing={6}>
                   {data.video.author && (
                     <HStack justify="space-between">
                       <Stack spacing={4} direction="row" align="center">
-                        <Image
+                        <Avatar
                           src={data.video.author.pic as string}
                           boxSize={14}
                           rounded="full"
@@ -142,12 +147,46 @@ function VideoPage() {
                     </Text>
                   </Stack>
                 </Stack>
-                <Stack>
+                <Stack spacing={6}>
                   <HStack>
                     <Text fontSize="lg" textStyle="primary">
                       {numberWithCommas(data.video.commentCount)} comentarios
                     </Text>
                   </HStack>
+                  <Stack spacing={10}>
+                    {data.me && (
+                      <HStack spacing={4}>
+                        <Avatar
+                          src={data.me?.pic as string}
+                          boxSize={12}
+                          rounded="full"
+                        />
+                        <Stack w="full">
+                          <Input
+                            onFocus={() => {
+                              setFocused(true);
+                            }}
+                            placeholder="Agrega un comentario..."
+                            variant="flushed"
+                          />
+                          {focused && (
+                            <HStack justify="end">
+                              <Button
+                                variant="secondary"
+                                onClick={() => {
+                                  setFocused(false);
+                                }}
+                              >
+                                Cancelar
+                              </Button>
+                              <Button variant="secondary">Comentar</Button>
+                            </HStack>
+                          )}
+                        </Stack>
+                      </HStack>
+                    )}
+                    <CommentSection videoId={data.video.id} />
+                  </Stack>
                 </Stack>
               </Stack>
             </Stack>

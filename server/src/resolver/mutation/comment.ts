@@ -11,7 +11,7 @@ export class CommentMutation {
     @Ctx() { prisma, req }: Context
   ): Promise<Comment> {
     return await prisma.comment.create({
-      data: { ...values, authorId: req.session.userId as string },
+      data: { ...values, authorId: "73872769" },
     });
   }
 }
